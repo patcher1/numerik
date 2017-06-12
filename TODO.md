@@ -1,6 +1,6 @@
 # TODO
 
-# Nullstellen
+## Nullstellen
 - Newton-Verfahren
   - 1-dim (1.7.2)
   - 2-dim (1.7.4)
@@ -9,7 +9,7 @@
 - Bisektionsverfahren (Intervallhalbierungsverfahren) (S7A2g)
 - Sekantenverfahren (1.6.2)
 
-# Ausgleichsrechnung
+## Ausgleichsrechnung
 - lineare
 - nicht-lineare
   - Newton-Verfahren (S7A1)
@@ -17,7 +17,7 @@
   - Gauss-Newton Verfahren (3.2.2) (S9A2c)
 - Least Squares Problem  
 
-# LinAlg
+## LinAlg
 
 - Gram-Schmidt-Verfahren (S8A1)
 - Modifiziertes Gram-Schmidt (S8A1)
@@ -37,14 +37,14 @@
     - Arnoldi-Iteration (4.4.4, geht aber nicht) (S10A2d)
     - Lanczos-Iteration (4.4.9, geht aber nicht) (S10A2d)
 
-# Interpolation
+## Interpolation
 
 - Newton Basis
 - Lagrange Basis
 - Fourier
 - Chebyshev-Interpolation
 
-# Integrale
+## Integrale
 
 - Mittelpunktregel (S6A3b)
   - n-dim
@@ -69,7 +69,7 @@
 - R^d Funktionen
 - Clenshaw-Curtis Quadratur
 
-# ODEs
+## ODEs
 
 - Explicit Euler (S2A2, S5A2)
 - Implicit Euler (S2A2, S5A2)
@@ -85,6 +85,6 @@
 - Runge Kutta Verfahren (S5A2, S6A3c) (Bsp)
   - Gauss-Kollokationsverfahren (S6A3d)
 
-# Steife ODEs
+## Steife ODEs
 
 - exponentielles Rosenbrock-Euler-Verfahren (S10A3) (Bsp)
