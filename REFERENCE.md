@@ -22,7 +22,8 @@
 - `scipy.sparse.linalg.eigs`: Anzahl EW/EV mit Arnoldi/Lancsoz
 - `scipy.integrate.quad`: Integrator
 - `scipy.integrate.nquad`: n-dim Integrator
-- `scipy.integrate.quadrature` Gauss Quadratur
+- `scipy.integrate.quadrature`: Gauss Quadratur
+- `scipy.linalg.expm`: e hoch Matrize
 
 ## Allgemeine
 

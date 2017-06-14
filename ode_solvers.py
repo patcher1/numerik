@@ -10,12 +10,12 @@ from eigenvalues import arnoldi, lanczos, krylov
 ##############
 
 def integrate(method, rhs, y0, t0, T, N):
-    y = np.empty((N+1,) + y0.shape)
+    y = np.empty((N+1,) + np.atleast_1d(y0).shape)
     y[0,...], dt = y0, T/N
     for i in range(0, N):
         y[i+1,...] = method(rhs, y[i,...], t0 + i*dt, dt)
 
-    return np.arange(N+1)*dt, y
+    return np.arange(N+1)*dt, y.reshape((y.shape[0], np.size(y0)))
 
 def explicit_euler_step(rhs, y0, t0, dt):
     return y0 + dt*rhs(t0, y0)
