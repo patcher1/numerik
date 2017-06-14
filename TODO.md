@@ -1,10 +1,10 @@
 # TODO
 
 # Nullstellen
-- [ ] Newton-Verfahren
-  - [ ] 1-dim (1.7.2)
-  - [ ] 2-dim (1.7.4)
-  - [ ] n-dim
+- [x] Newton-Verfahren
+  - [x] 1-dim (1.7.2)
+  - [x] 2-dim (1.7.4)
+  - [x] n-dim
 - [ ] gedämpftes Newton-Verfahren (1.8.6)
 - [ ] Bisektionsverfahren (Intervallhalbierungsverfahren) (S7A2g)
 - [ ] Sekantenverfahren (1.6.2)
@@ -33,9 +33,9 @@
     - [x] kleinste (Inverse Iteration) (S10A1)
       - [ ] Vorkonditionierte inverse Iteration (4.3.17)
   - [ ] Rayleigh-Quotient-Iteration (4.3.12)
-  - [ ] Krylov-Verfahren (S10A2c) (Bsp)
-    - [ ] Arnoldi-Iteration (4.4.4, geht aber nicht) (S10A2d)
-    - [ ] Lanczos-Iteration (4.4.9, geht aber nicht) (S10A2d)
+  - [x] Krylov-Verfahren (S10A2c) (Bsp)
+    - [x] Arnoldi-Iteration (4.4.4, geht aber nicht) (S10A2d)
+    - [x] Lanczos-Iteration (4.4.9, geht aber nicht) (S10A2d)
 
 # Interpolation
 
@@ -56,9 +56,9 @@
   - [x] Mittelpunktregel (7.2.6)
   - [x] Trapezregel (S4A1)
   - [x] Simpsonregel (7.2.7) (S3A3e, S4A1) 
-- [ ] Gauss-Legendre Quadratur (S5A1) (Bsp)
-  - [ ] zusammengesetzte (S5A1)
-  - [ ] Golub-Welsch (7.3.3)
+- [x] Gauss-Legendre Quadratur (S5A1) (Bsp)
+  - [x] zusammengesetzte (S5A1)
+  - [x] Golub-Welsch (7.3.3)
 - [ ] Adaptive Quadratur
 - [x] Monte-Carlo (7.7.1)
   - [ ] Control Variates (7.7.2)
@@ -81,9 +81,10 @@
   - [ ] Lie-Trotter
   - [ ] Strang (S11A1c, 2, 3)
 - [x] Runge Kutta Verfahren (S5A2, S6A3c) (Bsp)
-  - [ ] Gauss-Kollokationsverfahren (S6A3d)
-  - [ ] Radau + Lobatto QF
+  - [ ] Gauss-Kollokationsverfahren (Butcher) (S6A3d)
+  - [ ] Radau + Lobatto QF (Butcher)
 - [ ] Magnus Verfahren
+- [x] Krylov-Verfahren (S10A2c) (Bsp)
 
 # Steife ODEs
 
