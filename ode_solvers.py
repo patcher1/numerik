@@ -3,6 +3,11 @@
 import numpy as np
 import scipy.optimize
 import matplotlib.pyplot as plt
+from eigenvalues import arnoldi, lanczos, krylov
+
+##############
+# Solve ODEs #
+##############
 
 def integrate(method, rhs, y0, t0, T, N):
     y = np.empty((N+1,) + y0.shape)
@@ -128,97 +133,121 @@ def runge_kutta_step(rhs, t0, y0, dt, B):
 
     return y0 + dt*np.dot(b, k)
 
+###################################################
+# Methods to get y function of linear ODE Systems #
+###################################################
+
+"""
+Example: linear ODE System
+y'(t) = λ*A*y(t)
+=> y(t) = e^(λ*t*A)*y0
+
+l = -1j
+
+# By Krylov:
+V, H = krylov(A, y0, k)
+y = lambda t: V[:,:-1].dot(scipy.linalg.expm(l*t*H))[:,0]
+
+# Analytic
+y = lambda t: scipy.linalg.expm(l*t*A).dot(y0) # y(t) = exp(l*t*A)*y0
+
+# Diagonalize
+D, V = scipy.linalg.eig(A)
+y = lambda t: V.dot(np.diag(np.exp(l*t*D)).dot(scipy.linalg.solve(V, v)))
+
+"""
 
 #########
 # Tests #
 #########
 
+if __name__ == '__main__':
 
-# Beispiel: Gedaempftes Pendel
-f = lambda t, y: np.array([y[1], -82*y[0]-2*y[1]])
-t0 = 0.
-T = 4.
-N = 300
-y0 = np.array([1.,0.])
+    # Beispiel: Gedaempftes Pendel
+    f = lambda t, y: np.array([y[1], -82*y[0]-2*y[1]])
+    t0 = 0.
+    T = 4.
+    N = 300
+    y0 = np.array([1.,0.])
 
-#Exakte Loesung
-y = lambda t: np.exp(-t)*np.cos(9*t) # exakte Loesung
-t = np.linspace(t0,T,1000)
-y_exact = y(t)
+    #Exakte Loesung
+    y = lambda t: np.exp(-t)*np.cos(9*t) # exakte Loesung
+    t = np.linspace(t0,T,1000)
+    y_exact = y(t)
 
-# Butcher scheme for explicit Euler
-Bee = np.array([
-    [ 0.0,   0.0 ],
-    #------|-------
-    [ 0.0,   1.0 ]
-])
+    # Butcher scheme for explicit Euler
+    Bee = np.array([
+        [ 0.0,   0.0 ],
+        #------|-------
+        [ 0.0,   1.0 ]
+    ])
 
-# Butcher scheme for implicit Euler
-Bie = np.array([
-    [ 1.0,   1.0 ],
-    #------|-------
-    [ 0.0,   1.0 ]
-])
+    # Butcher scheme for implicit Euler
+    Bie = np.array([
+        [ 1.0,   1.0 ],
+        #------|-------
+        [ 0.0,   1.0 ]
+    ])
 
-# Butcher scheme for explicit midpoint
-Bem = np.array([
-    [ 0.0,   0.0, 0.0 ],
-    [ 0.5,   0.5, 0.0 ],
-    #------|------------
-    [ 0.0,   0.0, 1.0 ]
-])
+    # Butcher scheme for explicit midpoint
+    Bem = np.array([
+        [ 0.0,   0.0, 0.0 ],
+        [ 0.5,   0.5, 0.0 ],
+        #------|------------
+        [ 0.0,   0.0, 1.0 ]
+    ])
 
-# Butcher scheme for implicit midpoint
-Bim = np.array([
-    [ 0.5,   0.5 ],
-    #------|-------
-    [ 0.0,   1.0 ]
-])
+    # Butcher scheme for implicit midpoint
+    Bim = np.array([
+        [ 0.5,   0.5 ],
+        #------|-------
+        [ 0.0,   1.0 ]
+    ])
 
-# Butcher scheme for Runge-Kutta 3/8
-B38 = np.array([
-    [ 0.0,    0.0,  0.0, 0.0, 0.0 ],
-    [ 1/3,    1/3,  0.0, 0.0, 0.0 ],
-    [ 2/3,   -1/3,  1.0, 0.0, 0.0 ],
-    [ 1.0,    1.0, -1.0, 1.0, 0.0 ],
-    #------|------------------------
-    [ 0.0,    1/8,  3/8, 3/8, 1/8 ]
-])
+    # Butcher scheme for Runge-Kutta 3/8
+    B38 = np.array([
+        [ 0.0,    0.0,  0.0, 0.0, 0.0 ],
+        [ 1/3,    1/3,  0.0, 0.0, 0.0 ],
+        [ 2/3,   -1/3,  1.0, 0.0, 0.0 ],
+        [ 1.0,    1.0, -1.0, 1.0, 0.0 ],
+        #------|------------------------
+        [ 0.0,    1/8,  3/8, 3/8, 1/8 ]
+    ])
 
-Btr = np.array([
-    [ 0.0,   0.0, 0.0 ],
-    [ 1.0,   1.0, 0.0 ],
-    #------|------------
-    [ 1.0,   0.5, 0.5 ]
-])
+    Btr = np.array([
+        [ 0.0,   0.0, 0.0 ],
+        [ 1.0,   1.0, 0.0 ],
+        #------|------------
+        [ 1.0,   0.5, 0.5 ]
+    ])
 
 
-# Die 5 einfachsten RK-Verfahren ueber RK und dem Butcher-Tableau
-t_eE2, y_eE2 = runge_kutta(f, y0, t0, T, N, Bee)
-t_iE2, y_iE2 = runge_kutta(f, y0, t0, T, N, Bie)
-t_eM2, y_eM2 = runge_kutta(f, y0, t0, T, N, Bem)
-t_iM2, y_iM2 = runge_kutta(f, y0, t0, T, N, Bim)
-t_eTR2, y_eTR2 = runge_kutta(f, y0, t0, T, N, Btr)
-"""
-t_eE2, y_eE2 = explicit_euler(f, y0, t0, T, N)
-t_iE2, y_iE2 = implicit_euler(f, y0, t0, T, N)
-t_eM2, y_eM2 = explicit_mid_point(f, y0, t0, T, N)
-t_iM2, y_iM2 = implicit_mid_point(f, y0, t0, T, N)
-t_eTR2, y_eTR2 = runge_kutta(f, y0, t0, T, N, Btr)
-"""
+    # Die 5 einfachsten RK-Verfahren ueber RK und dem Butcher-Tableau
+    t_eE2, y_eE2 = runge_kutta(f, y0, t0, T, N, Bee)
+    t_iE2, y_iE2 = runge_kutta(f, y0, t0, T, N, Bie)
+    t_eM2, y_eM2 = runge_kutta(f, y0, t0, T, N, Bem)
+    t_iM2, y_iM2 = runge_kutta(f, y0, t0, T, N, Bim)
+    t_eTR2, y_eTR2 = runge_kutta(f, y0, t0, T, N, Btr)
+    """
+    t_eE2, y_eE2 = explicit_euler(f, y0, t0, T, N)
+    t_iE2, y_iE2 = implicit_euler(f, y0, t0, T, N)
+    t_eM2, y_eM2 = explicit_mid_point(f, y0, t0, T, N)
+    t_iM2, y_iM2 = implicit_mid_point(f, y0, t0, T, N)
+    t_eTR2, y_eTR2 = runge_kutta(f, y0, t0, T, N, Btr)
+    """
 
-#Plotten
-plt.figure()
-plt.plot(t_eE2,y_eE2[:,0],'r-',label='eE')
-plt.plot(t_iE2,y_iE2[:,0],'b-',label='iE')
-plt.plot(t_eM2,y_eM2[:,0],'m*',label='eM')
-plt.plot(t_iM2,y_iM2[:,0],'c',label='iM')
-plt.plot(t_eTR2,y_eTR2[:,0],'g-',label='eTR')
-plt.plot(t,y_exact,'k--',label='Exakt')
-plt.legend(loc='best')
-plt.title('Die 5 einfachsten RK-Verfahren: Ueber RK')
-plt.xlabel('Zeit t')
-plt.ylabel('Position y(t)')
-plt.ylim(-1,1)
-plt.grid(True)
-plt.show()
+    #Plotten
+    plt.figure()
+    plt.plot(t_eE2,y_eE2[:,0],'r-',label='eE')
+    plt.plot(t_iE2,y_iE2[:,0],'b-',label='iE')
+    plt.plot(t_eM2,y_eM2[:,0],'m*',label='eM')
+    plt.plot(t_iM2,y_iM2[:,0],'c',label='iM')
+    plt.plot(t_eTR2,y_eTR2[:,0],'g-',label='eTR')
+    plt.plot(t,y_exact,'k--',label='Exakt')
+    plt.legend(loc='best')
+    plt.title('Die 5 einfachsten RK-Verfahren: Ueber RK')
+    plt.xlabel('Zeit t')
+    plt.ylabel('Position y(t)')
+    plt.ylim(-1,1)
+    plt.grid(True)
+    plt.show()

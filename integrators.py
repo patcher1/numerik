@@ -98,6 +98,10 @@ def mcquad(f, a, b, N, d=1):
     mean = np.sum(fx)/N
     return mean, np.sqrt((np.sum(fx**2)/N - mean**2)/(N-1.))
 
+#########
+# Tests #
+#########
+
 def f1(x):
     return 1.0 / (1.0 + 5.0*x**2)
 
