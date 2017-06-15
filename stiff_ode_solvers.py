@@ -6,8 +6,6 @@ import scipy.optimize
 import matplotlib.pyplot as plt
 from ode_solvers import *
 
-
-
 if __name__ == '__main__':
 
     rhs = lambda t, y: -4*y*(y - 2)

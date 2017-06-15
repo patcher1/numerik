@@ -39,10 +39,18 @@
 
 # Interpolation
 
-- [ ] Newton Basis
-- [ ] Lagrange Basis
-- [ ] Fourier
-- [ ] Chebyshev-Interpolation
+- [x] Polynomiale
+  - [x] Monom Basis
+  - [ ] Newton Basis
+  - [ ] Lagrange Basis
+  - [ ] Baryzentrische Interpolationsformel
+- [x] Chebyshev-Interpolation
+  - [x] direkt evaluiert
+  - [x] mit evalchebexp() evaluiert (6.6.3)
+  - [x] mit Clenshaw evaluiert (5.4.25)
+- [ ] Trignonometrische
+  - [ ] Fourier
+  - [ ] DFT
 
 # Integrale
 
@@ -63,7 +71,7 @@
 - [x] Monte-Carlo (7.7.1)
   - [ ] Control Variates (7.7.2)
   - [ ] Importance Sampling (7.7.5)
-  - [ ] n-dim (S4A3)
+  - [x] n-dim (S4A3)
 - [ ] R^d Funktionen
   - [ ] Clenshaw-Curtis Quadratur (7.3.5, 7.3.6)
 
@@ -81,8 +89,8 @@
   - [ ] Lie-Trotter
   - [ ] Strang (S11A1c, 2, 3)
 - [x] Runge Kutta Verfahren (S5A2, S6A3c) (Bsp)
-  - [ ] Gauss-Kollokationsverfahren (Butcher) (S6A3d)
-  - [ ] Radau + Lobatto QF (Butcher)
+  - [x] Gauss-Kollokationsverfahren (Butcher) (S6A3d)
+  - [x] Radau + Lobatto QF (Butcher)
 - [ ] Magnus Verfahren
 - [x] Krylov-Verfahren (S10A2c) (Bsp)
 

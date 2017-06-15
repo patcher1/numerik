@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from helpers import gaussquad
 
 def trapezoid_rule(f, a, b, N):
     """Zusammengesetzte Trapezregel in 1d.
@@ -46,16 +47,6 @@ def two_dim(rule, f, a, b, Nx, c, d, Ny):
     F = lambda y: rule(lambda x: f(x, y), a, b, Nx)
     return rule(F, c, d, Ny) 
 
-def golub_welsch(n):
-    """Berechnet die Knoten und Gewichte für Gauss-Legendre Quadratur.
-    """
-    i = np.arange(n-1)
-    b = (i+1.) / np.sqrt(4.*(i+1)**2 - 1.)
-    J = np.diag(b, -1) + np.diag(b, 1)
-    x, ev = np.linalg.eigh(J)
-    w = 2 * ev[0,:]**2
-    return x, w
-
 def gauss_legendre(f, a, b, n):
     """ Gauss-Legendre Quadratur (nicht zusammengesetzt).
 
@@ -64,7 +55,7 @@ def gauss_legendre(f, a, b, n):
     n:     Anzahl Quadraturpunkte.
     """
 
-    xs, ws = golub_welsch(n) #7.3.3
+    xs, ws = gaussquad(n) #7.3.3
     x = a + (xs + 1.)*(b-a)*.5
     return np.sum(.5*(b-a)*ws*f(x))
 

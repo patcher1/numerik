@@ -21,15 +21,23 @@
 - `numpy.linalg.eig`: EW/EV
 - `scipy.sparse.linalg.eigs`: Anzahl EW/EV mit Arnoldi/Lancsoz
 - `scipy.integrate.quad`: Integrator
-- `scipy.integrate.nquad`: n-dim Integrator
+- `scipy.integrate.nquad`: n-dim Integrator (ruft rekursiv `quad` auf)
 - `scipy.integrate.quadrature`: Gauss Quadratur
 - `scipy.linalg.expm`: e hoch Matrize
+- `numpy.polynomial.polynomial.polyfit`: gibt Koeffizienten des Polynoms zurück (lowest power first)
+- `numpy.polyfit`: gibt Koeffizienten des Polynoms zurück (highest power first) (macht `numpy.linalg.solve(numpy.vander(x), y)`)
+- `numpy.polyval`: evaluiert anhand Koeffizienten (von polyfit) ein Polynom an gegebenen Punkten
+- `numpy.vander`: generiert eine Vandermonde matrix
 
 ## Allgemeine
 
 - `np.linspace`:
-- `np.arange`:
+- `np.arange`: np.arange(11, 152, 10) => [11,21,...,151]
 - `np.zeros`:
 - `np.ones`:
 - `np.dot`: Skalarprodukt
 - `np.array`:
+
+## Plots
+
+- `matplotlib.pyplot.semilogy`: Make a plot with log scaling on the y axis.
