@@ -28,6 +28,9 @@
 - `numpy.polyfit`: gibt Koeffizienten des Polynoms zurück (highest power first) (macht `numpy.linalg.solve(numpy.vander(x), y)`)
 - `numpy.polyval`: evaluiert anhand Koeffizienten (von polyfit) ein Polynom an gegebenen Punkten
 - `numpy.vander`: generiert eine Vandermonde matrix
+- `numpy.fft.fft`: `c=fft(y)` => c=(FN)y (FN: Fouriertrnasformationsmartix)
+- `numpy.fft.ifft`: `y=ifft(c)` => y=1/N(FN.H)c
+- `numpy.fft.fftshift`: shifte Koeffizienten sodass 0-Frequenz in der Mitte ist (zurück mit `ifftshift`)
 
 ## Allgemeine
 

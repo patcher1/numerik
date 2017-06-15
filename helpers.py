@@ -4,6 +4,8 @@ import numpy.linalg
 import scipy
 import scipy.linalg
 import numpy.linalg
+import numpy.fft
+import numpy.linalg
 
 ##################################
 # Hilfsfunktionen aus dem Skript #
@@ -71,3 +73,27 @@ def gaussquad(n):
     x, ev = np.linalg.eigh(J)
     w = 2 * ev[0,:]**2
     return x, w
+
+# 6.4.3
+def evaliptrig(y,N):
+    n = len(y)
+    if (n%2) == 0:
+        c = np.fft.ifft(y)
+        a = np.zeros(N, dtype=complex)
+        a[:n/2] = c[:n/2]
+        a[N-n/2:] = c[n/2:]
+        v = np.fft.fft(a);
+        return v
+    else: raise TypeError('odd length')
+
+# 6.4.2
+def trigpolycoeff(t, y):
+    N = y.shape[0]
+    if N%2 == 1:
+        n = (N-1.)/2.
+        M = np.exp(2*np.pi*1j*np.outer(t[:-1],np.arange(-n,n)))
+    else:
+        n = N/2.
+        M = np.exp(2*np.pi*1j*np.outer(t[:-1],np.arange(-n+1,n)))
+    c = np.linalg.solve(M, y[:-1])
+    return c

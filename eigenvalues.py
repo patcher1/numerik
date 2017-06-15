@@ -133,9 +133,9 @@ def ews_by_krylov(A, k):
     """    
     y0 = np.random.random((A.shape[0],))
     y0 /= np.linalg.norm(y0)
-    V, H, Hl = arnoldi(A, y0, min(A.shape[0], k))
+    V, H, Hl = krylov(A, y0, min(A.shape[0], k))
 
-    if (Hl == 0 and not np.array_equal(np.diagonal(A, -1), np.zeros(A.shape[0] - 1))):
+    if (Hl == 0 and not np.array_equal(np.diagonal(H, -1), np.zeros(H.shape[0] - 1))):
         # EW of H <=> EW of A
         return scipy.linalg.eigvals(H)
     else:

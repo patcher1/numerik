@@ -6,6 +6,9 @@ import scipy.linalg
 import numpy.linalg
 import matplotlib.pyplot as plt
 from helpers import evalchebexp, chebexp, clenshaw
+import numpy.random
+
+# Polynominterpolation
 
 def simple(f, a, b, N):
     """
@@ -69,7 +72,45 @@ def my_polyfit(x, y, N):
     return numpy.linalg.solve(numpy.vander(x), y)
 
 
+# Trigonometrische Interpolation
+#TODO
+
+
+#########
+# Tests #
+#########
+
 if __name__ == '__main__':
+
+    
+    #sint = np.sin(t)
+    #sp = np.fft.fft(sint)
+    #freq = np.fft.fftfreq(t.shape[-1])
+    #plt.plot(freq, sp.real, freq, sp.imag)
+
+    """
+    x = np.sin(np.arange(64))
+    n = np.size(x)
+    ft = np.fft.fftshift(np.fft.fft(x))
+    m = np.size(np.fft.fft(x))
+    #plt.plot(x, np.fft.fft(x))
+    plt.vlines(np.arange(n), np.zeros(n), x, colors='g')
+    plt.vlines(np.arange(-m/2, m/2), np.zeros(m), ft, colors='r')
+    plt.show()
+    """
+
+    x = np.arange(64)
+    y = np.sin(2*np.pi*x/64) + np.sin(7*2*np.pi*x/64)
+    y = y + np.random.randn(len(x)) #distortion
+    c = np.fft.fft(y)
+    p = np.abs(c)**2
+    p /= 64.
+    plt.plot(x,y,'-+')
+    plt.show()
+    plt.bar(x[:32],p[:32])
+    plt.show()
+
+    """
 
     f = lambda x: 1.0/(1.0 + x**2)
     g = lambda x: 0.5*f(5*x) + f(5*x+5)
@@ -99,3 +140,5 @@ if __name__ == '__main__':
     plt.legend(loc='lower center', framealpha=0.8)
     plt.title('Aequidistant interpolation points')
     plt.show()
+
+    """
