@@ -10,7 +10,7 @@
 - [ ] Sekantenverfahren (1.6.2)
 
 # Ausgleichsrechnung
-- [ ] lineare
+- [x] lineare
 - [ ] nicht-lineare
   - [ ] Newton-Verfahren (S7A1)
     - [ ] n-dim
