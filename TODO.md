@@ -11,11 +11,11 @@
 
 # Ausgleichsrechnung
 - [x] lineare
-- [ ] nicht-lineare
-  - [ ] Newton-Verfahren (S7A1)
-    - [ ] n-dim
-  - [ ] Gauss-Newton Verfahren (3.2.2) (S9A2c)
-- [ ] Least Squares Problem  
+- [x] nicht-lineare
+  - [x] Newton-Verfahren (S7A1)
+    - [x] n-dim
+  - [x] Gauss-Newton Verfahren (3.2.2) (S9A2c)
+- [x] Least Squares Problem  
 
 # LinAlg
 
