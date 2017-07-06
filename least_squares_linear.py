@@ -45,13 +45,16 @@ def solve_with_svd(A, b):
     return x
 
 
+
+
+#Implement assignemnt 8.2 (radioactive Decomposition)
+
 def exactActivity (t, lambdas , m0):
     activity=0
     for i in range (m0.size):
         activity += m0[i]* lambdas[i]* np.exp (-lambdas[i]*t)
     return activity
 
-#Implement assignemnt 8.2 (radioactive Decomposition)
 def test():
     n=4
     number_of_measurements=10**2
