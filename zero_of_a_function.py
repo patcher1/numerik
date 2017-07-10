@@ -29,6 +29,25 @@ def newton(xk, f, Df, tol = 10**-14, maxit = 10000):
 
     return xk[0] if np.size(xk) == 1 else xk, i, np.array(X)
 
+def secant(f, x0, x1, abstol=1e-15, maxit=100):
+    r"""Secant iteration for solving f(x) = 0 and obtaining x*.
+
+    @param {callable} f       - function that takes at least one argument
+    @param {float} x0         - first start value
+    @param {float} x1         - second start value
+    @param {float} abstol     - absolute tolerance (default: 10^-15)
+    @param {int} maxit        - max iterations (default: 100)
+
+    @return {array}           - values of xk in each step
+    """
+    x = [x0, x1]
+    for i in range(maxit):
+        qk = (f(x[-1]) - f(x[-2]))/(x[-1] - x[-2])
+        x.append(x[-1] - f(x[-1])/qk)
+        if abs(x[-1] - x[-2]) < abstol:
+            break
+    return array(x)
+
 #########
 # Tests #
 #########
