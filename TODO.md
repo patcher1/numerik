@@ -96,5 +96,5 @@
 
 # Steife ODEs
 
-- [ ] exponentielles Rosenbrock-Euler-Verfahren (S10A3) (Bsp)
+- [x] exponentielles Rosenbrock-Euler-Verfahren (S10A3) (Bsp)
 - [ ] Adaptiver Integrator für steife ODEs und Systeme mit Methoden unterschiedlicher Ordnung (8.6.2)
