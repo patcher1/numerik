@@ -29,7 +29,7 @@ def exp_euler(f, Df, y0, t0, T, N):
     for k in range(N-1):
         J = Df(y[k,:])
         x = np.linalg.solve(J, f(y[k,:]))
-        y[k+1,:] = y[k,:] + np.dot(np.expm(h*J) - np.eye(np.size(y0)), x)
+        y[k+1,:] = y[k,:] + np.dot(scipy.linalg.expm(h*J) - np.eye(np.size(y0)), x)
     return t, y
 
 if __name__ == '__main__':
