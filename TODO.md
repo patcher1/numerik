@@ -91,7 +91,7 @@
 - [x] Runge Kutta Verfahren (S5A2, S6A3c) (Bsp)
   - [x] Gauss-Kollokationsverfahren (Butcher) (S6A3d)
   - [x] Radau + Lobatto QF (Butcher)
-- [ ] Magnus Verfahren
+- [x] Magnus Verfahren
 - [x] Krylov-Verfahren (S10A2c) (Bsp)
 
 # Steife ODEs

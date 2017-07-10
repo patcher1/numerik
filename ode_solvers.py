@@ -75,7 +75,7 @@ def magnus(omega, y0, t0, T, N):
     @param {float} T                - End time
     @param {int} N                  - Number of steps
 
-    @return {array} [t, y]          - t: array of timesteps, y: array of coordinates
+    @return {ndarray} [t, y]          - t: array of timesteps, y: ndarray of coordinates
     """  
     return integrate(magnus_step, omega, y0, t0, T, N)
 
