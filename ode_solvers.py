@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-if __name__ == '__main__':
+import numpy as np
 import scipy.optimize
 import scipy.linalg
 import matplotlib.pyplot as plt
