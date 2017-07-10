@@ -121,7 +121,7 @@ def runge_kutta_step(rhs, t0, y0, dt, B):
     y1: Position zum naechsten Zeitpunkt
     """
     # Initialisierung des Vektors k
-    A, b, c, s, dim = B[0:-1,1:], B[-1,1:], B[0:,0], B.shape[1] - 1, np.size(y0)
+    A, b, c, s, dim = B[0:-1,1:], B[-1,1:], B[0:-1,0], B.shape[1] - 1, np.size(y0)
     k = np.zeros((s, dim))
     
     # A strikte untere Dreiecksmatrix --> Explizites RK-Verfahren
