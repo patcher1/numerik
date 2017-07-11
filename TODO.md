@@ -67,7 +67,7 @@
 - [x] Gauss-Legendre Quadratur (S5A1) (Bsp)
   - [x] zusammengesetzte (S5A1)
   - [x] Golub-Welsch (7.3.3)
-- [ ] Adaptive Quadratur
+- [x] Adaptive Quadratur
 - [x] Monte-Carlo (7.7.1)
   - [ ] Control Variates (7.7.2)
   - [ ] Importance Sampling (7.7.5)
