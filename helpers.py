@@ -100,7 +100,7 @@ def trigpolycoeff(t, y):
     return c
 
 # 8.4.9
-def splitting_parameters(self, method):
+def splitting_parameters(method):
     u"""
     :param method: A string specifying the method for time integration.
     :return: Two arrays :math:`a` and :math:`b`.

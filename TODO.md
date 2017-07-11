@@ -85,9 +85,10 @@
 - [x] Störmer Verlet (S3A1)
   - [x] einschritt (S3A1)
   - [x] zweischritt (S3A1)
-- [ ] Splitting-Verfahren (Bsp)
-  - [ ] Lie-Trotter
-  - [ ] Strang (S11A1c, 2, 3)
+- [x] Splitting-Verfahren (Bsp)
+  - [x] Lie-Trotter
+  - [x] Strang (S11A1c, 2, 3)
+  - [x] Allgemeine (8.4.9)
 - [x] Runge Kutta Verfahren (S5A2, S6A3c) (Bsp)
   - [x] Gauss-Kollokationsverfahren (Butcher) (S6A3d)
   - [x] Radau + Lobatto QF (Butcher)

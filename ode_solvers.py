@@ -17,6 +17,7 @@ def integrate(method, f, y0, t0, T, N):
     y[0,...], dt = y0, (T - t0)/N
     for i in range(0, N):
         y[i+1,...] = method(f, y[i,...], t0 + i*dt, dt)
+    #return np.arange(N+1)*dt, y # if the shape of the original y0 must be conserved
     return np.arange(N+1)*dt, y.reshape((y.shape[0], np.size(y0)))
 
 def explicit_euler_step(rhs, y0, t0, dt):
@@ -374,11 +375,11 @@ if __name__ == '__main__':
     Phi_rot = lambda y0, t: np.dot(scipy.linalg.expm(np.dot(dRdt(t), invR(t))*t), y0)
     Phi_stretch = lambda y0, t: np.exp(B*t)*y0
 
-    a, b = splitting_parameters(0, 'KL8')
+    a, b = splitting_parameters('KL8')
     t4, y4 = splitting(Phi_rot, Phi_stretch, y0, t0, t_end, n_steps, a, b)
     plt.plot(y4[:,0], y4[:,1], label='KL8')
 
-    a, b = splitting_parameters(0, 'L84')
+    a, b = splitting_parameters('L84')
     t5, y5 = splitting(Phi_rot, Phi_stretch, y0, t0, t_end, n_steps, a, b)
     plt.plot(y5[:,0], y5[:,1], label='L84')
 
