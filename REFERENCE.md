@@ -40,7 +40,15 @@
 - `np.ones`:
 - `np.dot`: Skalarprodukt
 - `np.array`:
+- `np.ones_like().astype(float)`:
+- `np.zeros_like().astype(float)`:
 
 ## Plots
 
 - `matplotlib.pyplot.semilogy`: Make a plot with log scaling on the y axis.
+- `matplotlib.pyplot.plot`:
+- `matplotlib.pyplot.loglog`:
+
+## Sonstiges
+
+- `ode45`: Bsp: `ode45(f, [t0, T], y0, **options)` mit `options = {'reltol':1e-8, 'abstol':1e-8, 'initialstep':2e-1, 'stats':'on'}`

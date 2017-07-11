@@ -5,17 +5,18 @@ import scipy.optimize
 import scipy.linalg
 import matplotlib.pyplot as plt
 from eigenvalues import arnoldi, lanczos, krylov
+from helpers import splitting_parameters
+from ode45 import ode45
 
 ##############
 # Solve ODEs #
 ##############
 
-def integrate(method, rhs, y0, t0, T, N):
+def integrate(method, f, y0, t0, T, N):
     y = np.empty((N+1,) + np.atleast_1d(y0).shape)
-    y[0,...], dt = y0, T/N
+    y[0,...], dt = y0, (T - t0)/N
     for i in range(0, N):
-        y[i+1,...] = method(rhs, y[i,...], t0 + i*dt, dt)
-
+        y[i+1,...] = method(f, y[i,...], t0 + i*dt, dt)
     return np.arange(N+1)*dt, y.reshape((y.shape[0], np.size(y0)))
 
 def explicit_euler_step(rhs, y0, t0, dt):
@@ -67,7 +68,8 @@ def magnus(omega, y0, t0, T, N):
     """
     Integrator by Magnus methods
 
-    @param {callable} omega(t, h)   - Omega-Matrix which must accept t and h as parameters (@see Script 8.8)
+    @param {callable} omega(t, h)   - Omega-Matrix which must accept t and h as parameters
+                                      (@see Script 8.8)
            @param {float} t         - current time
            @param {float} h         - length of time step
     @param {array|float} y0         - Startvalues
@@ -75,7 +77,7 @@ def magnus(omega, y0, t0, T, N):
     @param {float} T                - End time
     @param {int} N                  - Number of steps
 
-    @return {ndarray} [t, y]          - t: array of timesteps, y: ndarray of coordinates
+    @return {ndarray} [t, y]        - t: array of timesteps, y: ndarray of coordinates
     """  
     return integrate(magnus_step, omega, y0, t0, T, N)
 
@@ -83,32 +85,47 @@ def magnus_step(omega, y0, t0, dt):
     exp = np.exp if np.size(y0) == 1 else scipy.linalg.expm
     return np.dot(exp(omega(t0, dt)), y0)
 
+def splitting_step(Phi_a, Phi_b, y0, t0, dt, a, b):
+    y = y0
+    for a, b in zip(a, b):
+        if (a != 0.0): y = Phi_a(y, a*dt)
+        if (b != 0.0): y = Phi_b(y, b*dt)
+    return y
+
+def splitting(Phi_a, Phi_b, y0, t0, T, N, a, b):
+    r"""Generalized splitting method.
+
+    @param {callable} Phi_a   - 1st term in rhs
+    @param {callable} Phi_b   - 2nd term in rhs
+    @param {float} y0         - Start value
+    @param {float} t0         - Start time
+    @param {float} T          - End time
+    @param {int} N            - Number of steps
+    @param {array} a          - length of Phi_a's steps
+    @param {array} b          - length of Phi_b's steps
+
+    @return {ndarray} [t, y]  - t: array of timesteps, y: ndarray of coordinates
+    """
+    method = lambda rhs, y, t0, dt: splitting_step(Phi_a, Phi_b, y, t0, dt, a, b)
+    return integrate(method, None, y0, t0, T, N)
+
 def runge_kutta(rhs, y0, t0, T, N, B):
-    """
-    INPUTS:
-    rhs: Rechte Seite der DGL: dy/dt = f(t,y(t))
-    t0, T: Start- und Endzeitpunkt
-    y0: Startvektor
-    N: Anzahl Teilintervalle
-    B: Butcher Schema
-    
-    OUTPUTS:
-    t: Die Zeiten/Laufvariable zu den approximierten Funktionswerten
-    y: Array aus dem Startwert und den N approximierten Funktionswerten
-    """
+    r"""Generalized runge kutta method.
 
-    y = np.zeros((N+1, np.size(y0)))
-    t, dt = np.linspace(t0, T, N+1, retstep=True)
-    y[0,:] = y0
-       
-    # Iterative Berechnung der approximierten Funktionswerte y[i+1,:]
-    for i in range(N):
-        y[i+1,:] = runge_kutta_step(rhs, t[i], y[i,:], dt, B)
-    return t, y
+    @param {callable} rhs     - right hand side of ODE
+    @param {float} y0         - Start value
+    @param {float} t0         - Start time
+    @param {float} T          - End time
+    @param {int} N            - Number of steps
+    @param {ndarray} B        - Butcher Scheme
 
+    @return {ndarray} [t, y]  - t: array of timesteps, y: ndarray of coordinates
+    """
+    method = lambda rhs, y0, t0, dt: runge_kutta_step(rhs, y0, t0, dt, B)
+    return integrate(method, rhs, y0, t0, T, N)
 
 # Einzelner Schritt in RK mit Fallunterscheidung    
-def runge_kutta_step(rhs, t0, y0, dt, B):
+def runge_kutta_step(rhs, y0, t0, dt, B):
     """
     INPUTS
     rhs: Rechte Seite der DGL: dy/dt = f(t,y(t))
@@ -184,13 +201,12 @@ y = lambda t: V.dot(np.diag(np.exp(l*t*D)).dot(scipy.linalg.solve(V, v)))
 
 if __name__ == '__main__':
 
+    """
     # Magnus-Verfahren n. Ordnung
     # DGL: y'(t) = A(t)y(t)
     # Die Mathieu-Gleichung:
     # y'' + (ω^2 + ε*cos(t))*y = 0
     # y(0)=1, y'(0)=0
-
-    """
 
     # Funktion für den Kommutator AB - BA
     C = lambda A, B: np.dot(A, B) - np.dot(B, A)
@@ -235,6 +251,7 @@ if __name__ == '__main__':
     """
 
     """
+    # Runge Kutta Bsp
     # Beispiel: Gedaempftes Pendel
     f = lambda t, y: np.array([y[1], -82*y[0]-2*y[1]])
     t0 = 0.
@@ -321,5 +338,54 @@ if __name__ == '__main__':
     plt.ylabel('Position y(t)')
     plt.ylim(-1,1)
     plt.grid(True)
+    plt.show()
+    """
+
+    """
+    # Splitting example from S11A1
+
+    B = -0.1
+    theta = 0.25*np.pi
+
+    # Zur Kontrolle mit ode45.
+    def rhs(t, y):
+        return np.dot(dRdt(t), np.dot(invR(t), y)) + B*y
+
+    def R(t):
+        angle = theta*t
+        A = np.array([[np.cos(angle), -np.sin(angle)],
+                      [np.sin(angle), np.cos(angle)]])
+        return A
+
+    def invR(t):
+        return R(-t)
+
+    def dRdt(t):
+        angle = theta*t
+        A = theta*np.array([[-np.sin(angle), -np.cos(angle)],
+                            [np.cos(angle), -np.sin(angle)]])
+        return A
+
+    y0 = np.array([1.0, 0.0])
+    t0 = 0.0
+    t_end = 100.0
+    n_steps = 1000
+
+    Phi_rot = lambda y0, t: np.dot(scipy.linalg.expm(np.dot(dRdt(t), invR(t))*t), y0)
+    Phi_stretch = lambda y0, t: np.exp(B*t)*y0
+
+    a, b = splitting_parameters(0, 'KL8')
+    t4, y4 = splitting(Phi_rot, Phi_stretch, y0, t0, t_end, n_steps, a, b)
+    plt.plot(y4[:,0], y4[:,1], label='KL8')
+
+    a, b = splitting_parameters(0, 'L84')
+    t5, y5 = splitting(Phi_rot, Phi_stretch, y0, t0, t_end, n_steps, a, b)
+    plt.plot(y5[:,0], y5[:,1], label='L84')
+
+    t_ode45, y_ode45 = ode45(rhs, [t0, t_end], y0)
+    plt.plot(y_ode45[:,0], y_ode45[:,1], label='ode45')
+    
+    plt.legend(loc='best')
+    plt.savefig("spiral.pdf")
     plt.show()
     """
