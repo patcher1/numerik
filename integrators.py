@@ -89,6 +89,36 @@ def mcquad(f, a, b, N, d=1):
     mean = np.sum(fx)/N
     return mean, np.sqrt((np.sum(fx**2)/N - mean**2)/(N-1.))
 
+
+'''
+    Adaptive integration. Uses a worse and a better integration method (for example: Simpson and Trapezoid)
+    to approximate where smaller steps are needed. Of course in the end, the integral will be calculated with the better method.
+
+    @param {callable} f         - function to integrate
+    @param {float} a            - lower bound
+    @param {float} b            - upper bound
+    @param {array} i_ev         - initial evaluation points for approximating the integral
+    @param {float} rtol         - relative tolerance
+    @param {float} atol         - absolute tolerance
+    @param {callable} quadw     - a quadrature method
+    @param {callable} quadb     - a better quadrature method
+'''
+def adaptiveQuad(f, a, b, i_ev, rtol, atol, quadw, quadb):
+    wLocal = np.zeros(i_ev.size -1)
+    bLocal = np.zeros(i_ev.size -1)
+    for i in range(i_ev.size -1):
+        wLocal[i] = quadw(f,i_ev[i],i_ev[i+1],1)
+        bLocal[i] = quadb(f,i_ev[i],i_ev[i+1],1)
+
+    I = np.sum(bLocal)                         #We take the better approximation as the Integral
+    local_errors = np.abs(bLocal - wLocal)
+    global_error = np.sum(local_errors)
+
+    if global_error > rtol*np.abs(I) and global_error > atol:
+        midpoints = 0.5*( i_ev[:-1]+i_ev[1:] )
+        refcells = np.nonzero( local_errors > 0.9*np.sum(local_errors)/np.size(local_errors) )[0]
+        I, i_ev = adaptiveQuad(f,a,b,np.sort(np.append(i_ev,midpoints[refcells])),rtol,atol,quadw,quadb)
+    return I, i_ev
 #########
 # Tests #
 #########
@@ -102,12 +132,23 @@ def f2(x):
 def f2d(x, y):
     return 1.0 / np.sqrt((x - 2.0) ** 2 + (y - 2.0) ** 2)
 
+def f3(x):
+    return 1/(10**(-4)+x**2) #function with extremely large values around 0
 
 if __name__ == "__main__":
     # Testfunktionen
     If1ex = np.arctan(np.sqrt(5.0)) / np.sqrt(5.0)
     If2ex = 2.0 / 3.0
     IF2dex = 1.449394876268660
+
+    a=-1
+    b=1
+    num_i_ev=10
+    i_ev=np.linspace(a, b, num_i_ev)
+    I, ev = adaptiveQuad(f3,a,b,i_ev, 10**-5,10**-5,trapezoid_rule,simpson_rule)
+
+    print("Integral: ",I)
+    print("EV-Points: ", ev)
 
     print(composite_legendre(f1, 0.0,  1.0, 128))
     print(If1ex)
