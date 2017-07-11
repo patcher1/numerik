@@ -7,15 +7,15 @@
   - [x] n-dim
 - [ ] gedämpftes Newton-Verfahren (1.8.6)
 - [ ] Bisektionsverfahren (Intervallhalbierungsverfahren) (S7A2g)
-- [ ] Sekantenverfahren (1.6.2)
+- [x] Sekantenverfahren (1.6.2)
 
 # Ausgleichsrechnung
 - [x] lineare
-- [ ] nicht-lineare
-  - [ ] Newton-Verfahren (S7A1)
-    - [ ] n-dim
-  - [ ] Gauss-Newton Verfahren (3.2.2) (S9A2c)
-- [ ] Least Squares Problem  
+- [x] nicht-lineare
+  - [x] Newton-Verfahren (S7A1)
+    - [x] n-dim
+  - [x] Gauss-Newton Verfahren (3.2.2) (S9A2c)
+- [x] Least Squares Problem  
 
 # LinAlg
 
@@ -91,10 +91,10 @@
 - [x] Runge Kutta Verfahren (S5A2, S6A3c) (Bsp)
   - [x] Gauss-Kollokationsverfahren (Butcher) (S6A3d)
   - [x] Radau + Lobatto QF (Butcher)
-- [ ] Magnus Verfahren
+- [x] Magnus Verfahren
 - [x] Krylov-Verfahren (S10A2c) (Bsp)
 
 # Steife ODEs
 
-- [ ] exponentielles Rosenbrock-Euler-Verfahren (S10A3) (Bsp)
+- [x] exponentielles Rosenbrock-Euler-Verfahren (S10A3) (Bsp)
 - [ ] Adaptiver Integrator für steife ODEs und Systeme mit Methoden unterschiedlicher Ordnung (8.6.2)

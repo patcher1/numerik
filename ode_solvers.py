@@ -2,19 +2,21 @@
 
 import numpy as np
 import scipy.optimize
+import scipy.linalg
 import matplotlib.pyplot as plt
 from eigenvalues import arnoldi, lanczos, krylov
+from helpers import splitting_parameters
+from ode45 import ode45
 
 ##############
 # Solve ODEs #
 ##############
 
-def integrate(method, rhs, y0, t0, T, N):
+def integrate(method, f, y0, t0, T, N):
     y = np.empty((N+1,) + np.atleast_1d(y0).shape)
-    y[0,...], dt = y0, T/N
+    y[0,...], dt = y0, (T - t0)/N
     for i in range(0, N):
-        y[i+1,...] = method(rhs, y[i,...], t0 + i*dt, dt)
-
+        y[i+1,...] = method(f, y[i,...], t0 + i*dt, dt)
     return np.arange(N+1)*dt, y.reshape((y.shape[0], np.size(y0)))
 
 def explicit_euler_step(rhs, y0, t0, dt):
@@ -62,32 +64,68 @@ def velocity_verlet_step(rhs, xv0, t0, dt):
 def velocity_verlet(rhs, y0, t0, T, N):
     return integrate(velocity_verlet_step, rhs, y0, t0, T, N)
 
+def magnus(omega, y0, t0, T, N):
+    """
+    Integrator by Magnus methods
+
+    @param {callable} omega(t, h)   - Omega-Matrix which must accept t and h as parameters
+                                      (@see Script 8.8)
+           @param {float} t         - current time
+           @param {float} h         - length of time step
+    @param {array|float} y0         - Startvalues
+    @param {float} t0               - Start time
+    @param {float} T                - End time
+    @param {int} N                  - Number of steps
+
+    @return {ndarray} [t, y]        - t: array of timesteps, y: ndarray of coordinates
+    """  
+    return integrate(magnus_step, omega, y0, t0, T, N)
+
+def magnus_step(omega, y0, t0, dt):
+    exp = np.exp if np.size(y0) == 1 else scipy.linalg.expm
+    return np.dot(exp(omega(t0, dt)), y0)
+
+def splitting_step(Phi_a, Phi_b, y0, t0, dt, a, b):
+    y = y0
+    for a, b in zip(a, b):
+        if (a != 0.0): y = Phi_a(y, a*dt)
+        if (b != 0.0): y = Phi_b(y, b*dt)
+    return y
+
+def splitting(Phi_a, Phi_b, y0, t0, T, N, a, b):
+    r"""Generalized splitting method.
+
+    @param {callable} Phi_a   - 1st term in rhs
+    @param {callable} Phi_b   - 2nd term in rhs
+    @param {float} y0         - Start value
+    @param {float} t0         - Start time
+    @param {float} T          - End time
+    @param {int} N            - Number of steps
+    @param {array} a          - length of Phi_a's steps
+    @param {array} b          - length of Phi_b's steps
+
+    @return {ndarray} [t, y]  - t: array of timesteps, y: ndarray of coordinates
+    """
+    method = lambda rhs, y, t0, dt: splitting_step(Phi_a, Phi_b, y, t0, dt, a, b)
+    return integrate(method, None, y0, t0, T, N)
+
 def runge_kutta(rhs, y0, t0, T, N, B):
-    """
-    INPUTS:
-    rhs: Rechte Seite der DGL: dy/dt = f(t,y(t))
-    t0, T: Start- und Endzeitpunkt
-    y0: Startvektor
-    N: Anzahl Teilintervalle
-    B: Butcher Schema
-    
-    OUTPUTS:
-    t: Die Zeiten/Laufvariable zu den approximierten Funktionswerten
-    y: Array aus dem Startwert und den N approximierten Funktionswerten
-    """
+    r"""Generalized runge kutta method.
 
-    y = np.zeros((N+1, np.size(y0)))
-    t, dt = np.linspace(t0, T, N+1, retstep=True)
-    y[0,:] = y0
-       
-    # Iterative Berechnung der approximierten Funktionswerte y[i+1,:]
-    for i in range(N):
-        y[i+1,:] = runge_kutta_step(rhs, t[i], y[i,:], dt, B)
-    return t, y
+    @param {callable} rhs     - right hand side of ODE
+    @param {float} y0         - Start value
+    @param {float} t0         - Start time
+    @param {float} T          - End time
+    @param {int} N            - Number of steps
+    @param {ndarray} B        - Butcher Scheme
 
+    @return {ndarray} [t, y]  - t: array of timesteps, y: ndarray of coordinates
+    """
+    method = lambda rhs, y0, t0, dt: runge_kutta_step(rhs, y0, t0, dt, B)
+    return integrate(method, rhs, y0, t0, T, N)
 
 # Einzelner Schritt in RK mit Fallunterscheidung    
-def runge_kutta_step(rhs, t0, y0, dt, B):
+def runge_kutta_step(rhs, y0, t0, dt, B):
     """
     INPUTS
     rhs: Rechte Seite der DGL: dy/dt = f(t,y(t))
@@ -100,7 +138,7 @@ def runge_kutta_step(rhs, t0, y0, dt, B):
     y1: Position zum naechsten Zeitpunkt
     """
     # Initialisierung des Vektors k
-    A, b, c, s, dim = B[0:-1,1:], B[-1,1:], B[0:,0], B.shape[1] - 1, np.size(y0)
+    A, b, c, s, dim = B[0:-1,1:], B[-1,1:], B[0:-1,0], B.shape[1] - 1, np.size(y0)
     k = np.zeros((s, dim))
     
     # A strikte untere Dreiecksmatrix --> Explizites RK-Verfahren
@@ -163,6 +201,57 @@ y = lambda t: V.dot(np.diag(np.exp(l*t*D)).dot(scipy.linalg.solve(V, v)))
 
 if __name__ == '__main__':
 
+    """
+    # Magnus-Verfahren n. Ordnung
+    # DGL: y'(t) = A(t)y(t)
+    # Die Mathieu-Gleichung:
+    # y'' + (ω^2 + ε*cos(t))*y = 0
+    # y(0)=1, y'(0)=0
+
+    # Funktion für den Kommutator AB - BA
+    C = lambda A, B: np.dot(A, B) - np.dot(B, A)
+
+    omega = 1.
+    eps = 0.25
+    y0 = 1
+    y0p = 0
+    t0 = 0.
+    T = 20*np.pi
+    N = 10**5
+    A = lambda t : np.array([[0, 1],[-(omega**2 + eps*np.cos(t)), 0]])
+    z = lambda z, t: np.array([z[1], -(omega**2 + eps*np.cos(t))*z[0]])
+    z0 = np.array([y0, y0p])
+
+    # 2. Ordnung (Omega wie im Skript Bsp: 8.8.1)
+    O2 = lambda t, h: h*A(t + 0.5*h)
+    t2, y2 = magnus(O2, z0, t0, T, N)
+
+    # 4. Ordnung (Omega wie im Skript Bsp: 8.8.2)
+    A1 = lambda t, h: A(t + (0.5 - np.sqrt(3)/12)*h)
+    A2 = lambda t, h: A(t + (0.5 + np.sqrt(3)/12)*h)
+    O4 = lambda t, h: 0.5*h*(A1(t, h) + A2(t, h)) - h**2*(np.sqrt(3)/12)*C(A1(t, h), A2(t, h))
+    t4, y4 = magnus(O4, z0, t0, T, N)
+
+    # 6. Ordnung (Omega wie im Skript Bsp: 8.8.4)
+    A1 = lambda t, h: A(t + (0.5 - np.sqrt(15)/10)*h)
+    A2 = lambda t, h: A(t + 0.5*h)
+    A3 = lambda t, h: A(t + (0.5 + np.sqrt(15)/10)*h)
+    O6 = lambda t, h: (h/6)*(A1(t, h) + 4*A2(t, h) + A3(t, h)) - (h**2/12)*C(A1(t, h), A3(t, h))
+    t6, y6 = magnus(O6, z0, t0, T, N)
+
+    plt.figure()
+    plt.plot(t2,y2[:,0],'r-',label='Mag 2. Ordn')
+    plt.plot(t4,y4[:,0],'g-',label='Mag 4. Ordn')
+    plt.plot(t6,y6[:,0],'b-',label='Mag 6. Ordn')
+    plt.xlabel('Zeit t')
+    plt.ylabel('Position y(t)')
+    plt.grid(True)
+    plt.show()
+
+    """
+
+    """
+    # Runge Kutta Bsp
     # Beispiel: Gedaempftes Pendel
     f = lambda t, y: np.array([y[1], -82*y[0]-2*y[1]])
     t0 = 0.
@@ -228,13 +317,12 @@ if __name__ == '__main__':
     t_eM2, y_eM2 = runge_kutta(f, y0, t0, T, N, Bem)
     t_iM2, y_iM2 = runge_kutta(f, y0, t0, T, N, Bim)
     t_eTR2, y_eTR2 = runge_kutta(f, y0, t0, T, N, Btr)
-    """
-    t_eE2, y_eE2 = explicit_euler(f, y0, t0, T, N)
-    t_iE2, y_iE2 = implicit_euler(f, y0, t0, T, N)
-    t_eM2, y_eM2 = explicit_mid_point(f, y0, t0, T, N)
-    t_iM2, y_iM2 = implicit_mid_point(f, y0, t0, T, N)
-    t_eTR2, y_eTR2 = runge_kutta(f, y0, t0, T, N, Btr)
-    """
+
+    #t_eE2, y_eE2 = explicit_euler(f, y0, t0, T, N)
+    #t_iE2, y_iE2 = implicit_euler(f, y0, t0, T, N)
+    #t_eM2, y_eM2 = explicit_mid_point(f, y0, t0, T, N)
+    #t_iM2, y_iM2 = implicit_mid_point(f, y0, t0, T, N)
+    #t_eTR2, y_eTR2 = runge_kutta(f, y0, t0, T, N, Btr)
 
     #Plotten
     plt.figure()
@@ -251,3 +339,53 @@ if __name__ == '__main__':
     plt.ylim(-1,1)
     plt.grid(True)
     plt.show()
+    """
+
+    """
+    # Splitting example from S11A1
+
+    B = -0.1
+    theta = 0.25*np.pi
+
+    # Zur Kontrolle mit ode45.
+    def rhs(t, y):
+        return np.dot(dRdt(t), np.dot(invR(t), y)) + B*y
+
+    def R(t):
+        angle = theta*t
+        A = np.array([[np.cos(angle), -np.sin(angle)],
+                      [np.sin(angle), np.cos(angle)]])
+        return A
+
+    def invR(t):
+        return R(-t)
+
+    def dRdt(t):
+        angle = theta*t
+        A = theta*np.array([[-np.sin(angle), -np.cos(angle)],
+                            [np.cos(angle), -np.sin(angle)]])
+        return A
+
+    y0 = np.array([1.0, 0.0])
+    t0 = 0.0
+    t_end = 100.0
+    n_steps = 1000
+
+    Phi_rot = lambda y0, t: np.dot(scipy.linalg.expm(np.dot(dRdt(t), invR(t))*t), y0)
+    Phi_stretch = lambda y0, t: np.exp(B*t)*y0
+
+    a, b = splitting_parameters(0, 'KL8')
+    t4, y4 = splitting(Phi_rot, Phi_stretch, y0, t0, t_end, n_steps, a, b)
+    plt.plot(y4[:,0], y4[:,1], label='KL8')
+
+    a, b = splitting_parameters(0, 'L84')
+    t5, y5 = splitting(Phi_rot, Phi_stretch, y0, t0, t_end, n_steps, a, b)
+    plt.plot(y5[:,0], y5[:,1], label='L84')
+
+    t_ode45, y_ode45 = ode45(rhs, [t0, t_end], y0)
+    plt.plot(y_ode45[:,0], y_ode45[:,1], label='ode45')
+    
+    plt.legend(loc='best')
+    plt.savefig("spiral.pdf")
+    plt.show()
+    """
