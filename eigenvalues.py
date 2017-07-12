@@ -76,8 +76,8 @@ def arnoldi(A, y0, k):
     """Arnoldi algorithm to compute the Krylov approximation.
 
     @param {ndarray} A  - the matrix (n,n)
-    @param {float} y0   - number of Krylov steps
-    @param {int} k      - all eigenvalues of A
+    @param {float} y0   - start vector
+    @param {int} k      - number of Krylov steps
     @return {ndarray} V - is the large matrix of shape (n,k+1) containing the orthogonal vectors.
     @return {ndarray} H - is the small matrix of shape (k,k) containing the Krylov approximation of A
     @return {float} Hl  - H[l+1,l], the last value of H, to decide whether EWs of A are EWs of H
@@ -102,8 +102,8 @@ def lanczos(A, y0, k):
     Lanczos algorithm to compute the Krylov approximation.
 
     @param {ndarray} A  - the matrix (n,n)
-    @param {float} y0   - number of Krylov steps
-    @param {int} k      - all eigenvalues of A
+    @param {float} y0   - start vector
+    @param {int} k      - number of Krylov steps
     @return {ndarray} V - is the large matrix of shape (n,k+1) containing the orthogonal vectors.
     @return {ndarray} H - is the small matrix of shape (k,k) containing the Krylov approximation of A
     @return {float} Hl  - H[l+1,l], the last value of H, to decide whether EWs of A are EWs of H
