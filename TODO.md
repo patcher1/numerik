@@ -42,8 +42,8 @@
 - [x] Polynomiale
   - [x] Monom Basis
   - [ ] Newton Basis
-  - [ ] Lagrange Basis
-  - [ ] Baryzentrische Interpolationsformel
+  - [x] Lagrange Basis
+  - [x] Baryzentrische Interpolationsformel
 - [x] Chebyshev-Interpolation
   - [x] direkt evaluiert
   - [x] mit evalchebexp() evaluiert (6.6.3)
