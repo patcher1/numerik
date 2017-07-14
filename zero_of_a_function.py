@@ -20,7 +20,7 @@ def newton(xk, f, Df, tol = 10**-14, maxit = 10000):
     """
 
     X = []
-    for i in range(1, maxit):
+    for i in range(1, maxit+1):
         sk = np.linalg.solve(np.atleast_2d(Df(xk)), np.atleast_1d(f(xk)))
         xk -= sk
         if np.linalg.norm(sk) <= tol*np.linalg.norm(xk):
