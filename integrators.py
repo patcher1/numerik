@@ -89,7 +89,7 @@ def mcquad(f, a, b, N, d=1):
     x = a + (b-a)*random.rand(N, d)
     fx = np.array([f(m if faccepts == 1 else m.reshape(d,1)) for m in x])
     mean = np.sum(fx)/float(N)
-    return mean, np.sqrt((np.sum(fx**2)/N - mean**2)/(N-1.)) #shouldn't we multiply mean with |b-a| here? so I=|b-a|*mean
+    return np.abs(b-a)*mean, np.sqrt((np.sum(fx**2)/N - mean**2)/(N-1.)) 
 
 
 '''
