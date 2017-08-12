@@ -17,8 +17,8 @@ def integrate(method, f, y0, t0, T, N):
     y[0,...], dt = y0, (T - t0)/N
     for i in range(0, N):
         y[i+1,...] = method(f, y[i,...], t0 + i*dt, dt)
-    #return np.arange(N+1)*dt, y # if the shape of the original y0 must be conserved
-    return np.arange(N+1)*dt, y.reshape((y.shape[0], np.size(y0)))
+    #return np.linspace(t0, T, N+1), y # if the shape of the original y0 must be conserved
+    return np.linspace(t0, T, N+1), y.reshape((y.shape[0], np.size(y0)))
 
 def explicit_euler_step(rhs, y0, t0, dt):
     return y0 + dt*rhs(t0, y0)

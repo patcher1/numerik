@@ -45,9 +45,20 @@
 
 ## Plots
 
-- `matplotlib.pyplot.semilogy`: Make a plot with log scaling on the y axis.
-- `matplotlib.pyplot.plot`:
-- `matplotlib.pyplot.loglog`:
+- `matplotlib.pyplot.semilog{x,y}`: Make a plot with log scaling on the {x,y} axis.
+- `matplotlib.pyplot.plot`: Ex: `plt.plot(x, f(x), "-b", label=r"$f(x)$")`
+- `matplotlib.pyplot.loglog`: Make a plot with log scaling on both the x and y axis.
+- Example plot
+```python
+plt.figure()
+plt.plot(x, f(x), "-b", label=r"$f(x)$")
+plt.grid(True)
+plt.xlabel(r"$x$")
+plt.ylabel(r"$y$")
+plt.legend()
+plt.savefig("figure.eps")
+plt.show()
+```
 
 ## Sonstiges
 
