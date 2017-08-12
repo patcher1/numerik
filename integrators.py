@@ -86,10 +86,11 @@ def mcquad(f, a, b, N, d=1):
     """
 
     faccepts = 1 # 0: column vectors ([[a],[b]]) or 1: row vectors ([a,b])
-    x = a + (b-a)*random.rand(N, d)
+    x = a + (b-a)*np.random.rand(N, d)
     fx = np.array([f(m if faccepts == 1 else m.reshape(d,1)) for m in x])
-    mean = np.sum(fx)/float(N)
-    return np.abs(b-a)*mean, np.sqrt((np.sum(fx**2)/N - mean**2)/(N-1.)) 
+    vol = np.abs(np.prod(b-a))
+    mean = vol*np.sum(fx)/float(N)
+    return mean, np.sqrt((vol**2*np.sum(fx**2)/N - mean**2)/(N-1.))
 
 
 '''
