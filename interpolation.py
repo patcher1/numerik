@@ -10,19 +10,20 @@ import numpy.random
 
 # Polynominterpolation
 
-def simple(f, a, b, N):
+def simple(f, a, b, N, M):
     """
     Interpolation einer Funktion mit aquidistanten Stützstellen
 
     @param {callable} f          - Funktion zur Approximation
     @param [{int}, {int}] [a, b] - Intervall zur Interpolation
     @param {int} N               - Grad des Polynoms
+    @param {int} M               - Anzahl Auswertungspunkte in [a,b]
 
     @return {callable}  - Interpolations-Polynom
     """ 
 
-    x = np.linspace(a, b, N+1)
-    c = my_polyfit(x, f(x), N)
+    x = np.linspace(a, b, M)
+    c = numpy.linalg.solve(np.vander(x), f(x))
     return lambda v: np.polyval(c, v)
 
 def chebychev(f, a, b, N):
@@ -147,7 +148,7 @@ if __name__ == '__main__':
     x = np.linspace(l, r, 10**3)
     N = 21
 
-    p1 = simple(g, l, r, N)
+    p1 = simple(g, l, r, N, N+1)
     y1 = p1(x)
     p2 = chebychev(g, l, r, N)
     y2 = p2(x)

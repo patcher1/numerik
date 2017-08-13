@@ -74,15 +74,14 @@ def mcquad(f, a, b, N, d=1):
     """Berechnet das `d`-dimensionale Integral von `f`.
 
     Input:
-        f : Funktion welche integriert werden soll. Das Argument von
-            `f` ist ein d-dim Array.
-     a, b : untere/obere Grenze des Integrals.
+        f : Funktion welche integriert werden soll. Das Argument von `f` ist ein d-dim Array.
+     a, b : untere/obere Grenzen des Integrals. Bei mehreren Dimensionen können beide d-dimensinale Arrays sein.
         d : Anzahl Dimensionen.
         N : Anzahl Zufallsvektoren.
 
     Output:
      mean : Approximation.
-    sigma : Standardabweichung.
+    sigma : Standardabweichung. @see 7.6.9
     """
 
     faccepts = 1 # 0: column vectors ([[a],[b]]) or 1: row vectors ([a,b])

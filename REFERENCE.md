@@ -31,17 +31,18 @@
 - `numpy.fft.fft`: `c=fft(y)` => c=(FN)y (FN: Fouriertrnasformationsmartix)
 - `numpy.fft.ifft`: `y=ifft(c)` => y=1/N(FN.H)c
 - `numpy.fft.fftshift`: shifte Koeffizienten sodass 0-Frequenz in der Mitte ist (zurück mit `ifftshift`)
+- `numpy.diag`: erstellt Diagmatrix aus Array oder diag(x) gibt Diagelemente aus Matrix
 
 ## Allgemeine
 
-- `np.linspace`:
-- `np.arange`: np.arange(11, 152, 10) => [11,21,...,151]
-- `np.zeros`:
-- `np.ones`:
+- `np.linspace(start, stop, num=50)`: np.linspace(11, 151, 15) => [11,21,...,151]
+- `np.arange(start, stop, step=1)`: np.arange(11, 152, 10) => [11,21,...,151]
+- `np.zeros(shape), np.ones(shape), np.empty(shape)`: gets array of shape with zeros, ones, or uninitialized elements
 - `np.dot`: Skalarprodukt
-- `np.array`:
-- `np.ones_like().astype(float)`:
-- `np.zeros_like().astype(float)`:
+- `np.array`: create numpy array from normal array
+- `np.ones_like().astype(float)`: Array with ones
+- `np.zeros_like().astype(float)`: Array with zeros
+- `np.empty_like().astype(float)`: Array of uninitialized (arbitrary) data
 
 ## Plots
 
