@@ -197,9 +197,10 @@ if __name__ == '__main__':
 
     #A = construct_matrix(N, kind)
 
+    print(A)
     print(ew)
     print("-------------------------")
-
+    
     # TODO Finden sie den grössten Eigenwert vom A mittels Potenzmethode.
     print(power_method(A)[0])
 
@@ -209,4 +210,6 @@ if __name__ == '__main__':
     # TODO Finden sie den Eigenwert am nächsten bei 42.
     print(shifted_inverse_power_method(A, 40)[0])
 
-    print(ews_by_krylov(A, 50))
+    # Alle EWs
+    #print(ews_by_krylov(A, 50))
+    print(np.real(np.around(ews_by_krylov(A, 50), decimals=1)))

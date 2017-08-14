@@ -38,7 +38,7 @@ def chebychev(f, a, b, N):
     """ 
 
     x = a + 0.5*(b-a)*(1.0 + np.cos(0.5*np.pi*(2*np.arange(N+1)+1)/(N+1.0))) #Cheby Knoten
-    c = my_polyfit(x, f(x), N)
+    c = numpy.linalg.solve(numpy.vander(x), f(x))
     return lambda v: np.polyval(c, v)
 
 def cheby_with_evalchebexp(f, a, b, N):

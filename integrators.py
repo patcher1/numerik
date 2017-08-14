@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from helpers import gaussquad
 
-def trapezoid_rule(f, a, b, N):
+def trapezoid(f, a, b, N):
     """Zusammengesetzte Trapezregel in 1d.
 
     Input:
@@ -20,7 +20,7 @@ def trapezoid_rule(f, a, b, N):
     x, h = np.linspace(a, b, N+1, retstep=True)
     return h*(.5*f(a) + sum(f(m) for m in x[1:-1]) + .5*f(b))
 
-def simpson_rule(f, a, b, N):
+def simpson(f, a, b, N):
     """Zusammengesetzte Simpsonregel in 1d.
 
     Input:
@@ -32,7 +32,7 @@ def simpson_rule(f, a, b, N):
     xm = .5*(x[1:] + x[:-1])
     return h/6.0 * (f(a) + 4.0*sum(f(m) for m in xm) + 2.0*sum(f(z) for z in x[1:-1]) + f(b))
 
-def mid_point_rule(f, a, b, N):
+def midpoint(f, a, b, N):
     """Zusammengesetzte Mittelpunktsregel in 1d.
 
     Input:
@@ -99,28 +99,35 @@ def mcquad(f, a, b, N, d=1):
     @param {callable} f         - function to integrate
     @param {float} a            - lower bound
     @param {float} b            - upper bound
-    @param {array} i_ev         - initial evaluation points for approximating the integral
+    @param {int} N              - initial number of intervalls
+    @param {callable} psilow    - a quadrature method
+    @param {callable} psihigh   - a better quadrature method
     @param {float} rtol         - relative tolerance
     @param {float} atol         - absolute tolerance
-    @param {callable} quadw     - a quadrature method
-    @param {callable} quadb     - a better quadrature method
+    @param {array} ev           - initial evaluation points for approximating the integral
+
+    @return I                   - approximated Integral
+    @return ev                  - evaluation points
 '''
-def adaptiveQuad(f, a, b, i_ev, rtol, atol, quadw, quadb):
-    wLocal = np.zeros(i_ev.size -1)
-    bLocal = np.zeros(i_ev.size -1)
-    for i in range(i_ev.size -1):
-        wLocal[i] = quadw(f,i_ev[i],i_ev[i+1],1)
-        bLocal[i] = quadb(f,i_ev[i],i_ev[i+1],1)
+def adaptQuad(f, a, b, N, psilow, psihigh, rtol=1e-5, atol=1e-5, ev=None):
+    ev = np.linspace(a, b, N) if ev == None else ev
+    Il = np.zeros(ev.size - 1)
+    Ih = np.zeros(ev.size - 1)
+    for i in range(ev.size - 1):
+        Il[i] = psilow(f, ev[i], ev[i+1], 1)
+        Ih[i] = psihigh(f, ev[i], ev[i+1], 1)
 
-    I = np.sum(bLocal)                         #We take the better approximation as the Integral
-    local_errors = np.abs(bLocal - wLocal)
-    global_error = np.sum(local_errors)
+    I = np.sum(Ih)                         #We take the better approximation as the Integral
+    eloc = np.abs(Ih - Il)
+    eglob = np.sum(eloc)
 
-    if global_error > rtol*np.abs(I) and global_error > atol:
-        midpoints = 0.5*( i_ev[:-1]+i_ev[1:] )
-        refcells = np.nonzero( local_errors > 0.9*np.sum(local_errors)/np.size(local_errors) )[0]
-        I, i_ev = adaptiveQuad(f,a,b,np.sort(np.append(i_ev,midpoints[refcells])),rtol,atol,quadw,quadb)
-    return I, i_ev
+    if eglob > rtol*np.abs(I) and eglob > atol:
+        midpoints = .5*(ev[:-1] + ev[1:])
+        refcells = np.nonzero(eloc > .9*np.sum(eloc)/np.size(eloc))[0]
+        ev = np.sort(np.append(ev, midpoints[refcells]))
+        I, ev = adaptQuad(f, a, b, N, psilow, psihigh, rtol, atol, ev)
+    return I, ev
+
 #########
 # Tests #
 #########
@@ -143,15 +150,21 @@ if __name__ == "__main__":
     If2ex = 2.0 / 3.0
     IF2dex = 1.449394876268660
 
-    a=-1
-    b=1
-    num_i_ev=10
-    i_ev=np.linspace(a, b, num_i_ev)
-    I, ev = adaptiveQuad(f3,a,b,i_ev, 10**-5,10**-5,trapezoid_rule,simpson_rule)
+    a, b = -1, 1
+    N = 10
+    ev = np.linspace(a, b, N)
+    I, ev = adaptQuad(f3, a, b, N, trapezoid, simpson, 1e-3, 1e-3)
 
-    print("Integral: ",I)
+    print("Integral: adapt", I)
+    print("Integral Simps: ", simpson(f3, a, b, len(ev))) 
     print("EV-Points: ", ev)
 
-    print(composite_legendre(f1, 0.0,  1.0, 128))
-    print(If1ex)
-    print(If1ex-composite_legendre(f1, 0.0,  1.0, 128))
+    plt.figure()
+    x = np.linspace(a, b, 100)
+    plt.plot(x, f3(x), 'b')
+    plt.plot(ev, f3(ev), 'r^')
+    plt.show()
+
+    #print(composite_legendre(f1, 0.0,  1.0, 128))
+    #print(If1ex)
+    #print(If1ex-composite_legendre(f1, 0.0,  1.0, 128))
