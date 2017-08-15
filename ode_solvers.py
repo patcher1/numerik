@@ -17,41 +17,41 @@ def integrate(method, f, y0, t0, T, N):
     y[0,...], dt = y0, (T - t0)/N
     for i in range(0, N):
         y[i+1,...] = method(f, y[i,...], t0 + i*dt, dt)
-    #return np.linspace(t0, T, N+1), y # if the shape of the original y0 must be conserved
-    return np.linspace(t0, T, N+1), y.reshape((y.shape[0], np.size(y0)))
+    return np.linspace(t0, T, N+1), y # if the shape of the original y0 must be conserved
+    #return np.linspace(t0, T, N+1), y.reshape((y.shape[0], np.size(y0)))
 
-def explicit_euler_step(rhs, y0, t0, dt):
+def eE_step(rhs, y0, t0, dt):
     return y0 + dt*rhs(t0, y0)
 
-def explicit_euler(rhs, y0, t0, T, N):
-    return integrate(explicit_euler_step, rhs, y0, t0, T, N)
+def eE(rhs, y0, t0, T, N):
+    return integrate(eE_step, rhs, y0, t0, T, N)
 
-def implicit_euler_step(rhs, y0, t0, dt):
+def iE_step(rhs, y0, t0, dt):
     # Das implizite Eulerverfahren ist
     #     y1 = y0 + dt * rhs(t+dt, y1)
     # Wir müssen diese gleichung nach y1 auflösen.
     F = lambda y1 : y1 - (y0 + dt * rhs(t0 + dt, y1))
-    return scipy.optimize.fsolve(F, explicit_euler_step(rhs, y0, t0, dt))
+    return scipy.optimize.fsolve(F, eE_step(rhs, y0, t0, dt))
 
-def implicit_euler(rhs, y0, t0, T, N):
-    return integrate(implicit_euler_step, rhs, y0, t0, T, N)
+def iE(rhs, y0, t0, T, N):
+    return integrate(iE_step, rhs, y0, t0, T, N)
 
-def implicit_mid_point_step(rhs, y0, t0, dt):
+def iM_step(rhs, y0, t0, dt):
     # Die implizite Mittelpunktsregel ist
     #    y1 = y0 + dt*rhs(t+0.5*dt, 0.5*(y0 + y1))
     F = lambda y1 : y1 - (y0 + dt*rhs(t0 + .5*dt, .5*(y0 + y1)))
-    return scipy.optimize.fsolve(F, explicit_euler_step(rhs, y0, t0, dt))
+    return scipy.optimize.fsolve(F, eE_step(rhs, y0, t0, dt))
 
-def implicit_mid_point(rhs, y0, t0, T, N):
-    return integrate(implicit_mid_point_step, rhs, y0, t0, T, N)
+def iM(rhs, y0, t0, T, N):
+    return integrate(iM_step, rhs, y0, t0, T, N)
 
-def explicit_mid_point_step(rhs, y0, t0, dt):
+def eM_step(rhs, y0, t0, dt):
     return y0 + dt*rhs(t0 + .5*dt, y0 + .5*dt*rhs(t0, y0))
 
-def explicit_mid_point(rhs, y0, t0, T, N):
-    return integrate(explicit_mid_point_step, rhs, y0, t0, T, N)
+def eM(rhs, y0, t0, T, N):
+    return integrate(eM_step, rhs, y0, t0, T, N)
 
-def velocity_verlet_step(rhs, xv0, t0, dt):
+def vv_step(rhs, xv0, t0, dt):
     xv0 = xv0.reshape((2, -1))
     xv1 = np.empty_like(xv0)
     x0, x1 = xv0[0,:], xv1[0,:]
@@ -62,8 +62,8 @@ def velocity_verlet_step(rhs, xv0, t0, dt):
 
     return xv1.reshape(-1)
 
-def velocity_verlet(rhs, y0, t0, T, N):
-    return integrate(velocity_verlet_step, rhs, y0, t0, T, N)
+def vv(rhs, y0, t0, T, N):
+    return integrate(vv_step, rhs, y0, t0, T, N)
 
 def magnus(omega, y0, t0, T, N):
     """
@@ -86,31 +86,31 @@ def magnus_step(omega, y0, t0, dt):
     exp = np.exp if np.size(y0) == 1 else scipy.linalg.expm
     return np.dot(exp(omega(t0, dt)), y0)
 
-def splitting_step(Phi_a, Phi_b, y0, t0, dt, a, b):
+def splitting_step(phi_a, phi_b, y0, t0, dt, a, b):
     y = y0
     for a, b in zip(a, b):
-        if (a != 0.0): y = Phi_a(y, a*dt)
-        if (b != 0.0): y = Phi_b(y, b*dt)
+        if (a != 0.0): y = phi_a(y, a*dt)
+        if (b != 0.0): y = phi_b(y, b*dt)
     return y
 
-def splitting(Phi_a, Phi_b, y0, t0, T, N, a, b):
+def splitting(phi_a, phi_b, y0, t0, T, N, a, b):
     r"""Generalized splitting method.
 
-    @param {callable} Phi_a   - 1st term in rhs
-    @param {callable} Phi_b   - 2nd term in rhs
+    @param {callable} phi_a   - 1st term in rhs
+    @param {callable} phi_b   - 2nd term in rhs
     @param {float} y0         - Start value
     @param {float} t0         - Start time
     @param {float} T          - End time
     @param {int} N            - Number of steps
-    @param {array} a          - length of Phi_a's steps
-    @param {array} b          - length of Phi_b's steps
+    @param {array} a          - length of phi_a's steps
+    @param {array} b          - length of phi_b's steps
 
     @return {ndarray} [t, y]  - t: array of timesteps, y: ndarray of coordinates
     """
-    method = lambda rhs, y, t0, dt: splitting_step(Phi_a, Phi_b, y, t0, dt, a, b)
+    method = lambda rhs, y, t0, dt: splitting_step(phi_a, phi_b, y, t0, dt, a, b)
     return integrate(method, None, y0, t0, T, N)
 
-def runge_kutta(rhs, y0, t0, T, N, B):
+def rk(rhs, y0, t0, T, N, B):
     r"""Generalized runge kutta method.
 
     @param {callable} rhs     - right hand side of ODE
@@ -122,11 +122,11 @@ def runge_kutta(rhs, y0, t0, T, N, B):
 
     @return {ndarray} [t, y]  - t: array of timesteps, y: ndarray of coordinates
     """
-    method = lambda rhs, y0, t0, dt: runge_kutta_step(rhs, y0, t0, dt, B)
+    method = lambda rhs, y0, t0, dt: rk_step(rhs, y0, t0, dt, B)
     return integrate(method, rhs, y0, t0, T, N)
 
 # Einzelner Schritt in RK mit Fallunterscheidung    
-def runge_kutta_step(rhs, y0, t0, dt, B):
+def rk_step(rhs, y0, t0, dt, B):
     """
     INPUTS
     rhs: Rechte Seite der DGL: dy/dt = f(t,y(t))
@@ -151,7 +151,7 @@ def runge_kutta_step(rhs, y0, t0, dt, B):
     elif np.array_equal(A, np.tril(A)):
         for i in range(s):
             F = lambda x: x - rhs(t0 + c[i]*dt, y0 + dt*np.dot(A[i,:], k + x))
-            k[i,:] = scipy.optimize.fsolve(F, explicit_euler_step(rhs, y0, t0, dt))
+            k[i,:] = scipy.optimize.fsolve(F, eE_step(rhs, y0, t0, dt))
 
     # A keine untere Dreiecksmatrix --> Allgemeines implizites RK-Verfahren
     else:
@@ -165,7 +165,7 @@ def runge_kutta_step(rhs, y0, t0, dt, B):
             return Fk.reshape(s*dim,)
         
         # Startwert fuer fsolve: Verwende eE
-        start = explicit_euler_step(rhs, y0, t0, dt)
+        start = eE_step(rhs, y0, t0, dt)
         
         # Loese das Gleichungssystem, um k zu bestimmen
         k = scipy.optimize.fsolve(F, start.reshape(s*dim,)).reshape(s, dim)
@@ -202,7 +202,6 @@ y = lambda t: V.dot(np.diag(np.exp(l*t*D)).dot(scipy.linalg.solve(V, v)))
 
 if __name__ == '__main__':
 
-    """
     # Magnus-Verfahren n. Ordnung
     # DGL: y'(t) = A(t)y(t)
     # Die Mathieu-Gleichung:
@@ -249,7 +248,6 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()
 
-    """
 
     """
     # Runge Kutta Bsp
@@ -313,17 +311,17 @@ if __name__ == '__main__':
 
 
     # Die 5 einfachsten RK-Verfahren ueber RK und dem Butcher-Tableau
-    t_eE2, y_eE2 = runge_kutta(f, y0, t0, T, N, Bee)
-    t_iE2, y_iE2 = runge_kutta(f, y0, t0, T, N, Bie)
-    t_eM2, y_eM2 = runge_kutta(f, y0, t0, T, N, Bem)
-    t_iM2, y_iM2 = runge_kutta(f, y0, t0, T, N, Bim)
-    t_eTR2, y_eTR2 = runge_kutta(f, y0, t0, T, N, Btr)
+    t_eE2, y_eE2 = rk(f, y0, t0, T, N, Bee)
+    t_iE2, y_iE2 = rk(f, y0, t0, T, N, Bie)
+    t_eM2, y_eM2 = rk(f, y0, t0, T, N, Bem)
+    t_iM2, y_iM2 = rk(f, y0, t0, T, N, Bim)
+    t_eTR2, y_eTR2 = rk(f, y0, t0, T, N, Btr)
 
-    #t_eE2, y_eE2 = explicit_euler(f, y0, t0, T, N)
-    #t_iE2, y_iE2 = implicit_euler(f, y0, t0, T, N)
-    #t_eM2, y_eM2 = explicit_mid_point(f, y0, t0, T, N)
-    #t_iM2, y_iM2 = implicit_mid_point(f, y0, t0, T, N)
-    #t_eTR2, y_eTR2 = runge_kutta(f, y0, t0, T, N, Btr)
+    #t_eE2, y_eE2 = eE(f, y0, t0, T, N)
+    #t_iE2, y_iE2 = iE(f, y0, t0, T, N)
+    #t_eM2, y_eM2 = eM(f, y0, t0, T, N)
+    #t_iM2, y_iM2 = iM(f, y0, t0, T, N)
+    #t_eTR2, y_eTR2 = rk(f, y0, t0, T, N, Btr)
 
     #Plotten
     plt.figure()
@@ -342,9 +340,8 @@ if __name__ == '__main__':
     plt.show()
     """
 
-    """
     # Splitting example from S11A1
-
+    """
     B = -0.1
     theta = 0.25*np.pi
 
@@ -374,6 +371,7 @@ if __name__ == '__main__':
 
     Phi_rot = lambda y0, t: np.dot(scipy.linalg.expm(np.dot(dRdt(t), invR(t))*t), y0)
     Phi_stretch = lambda y0, t: np.exp(B*t)*y0
+
 
     a, b = splitting_parameters('KL8')
     t4, y4 = splitting(Phi_rot, Phi_stretch, y0, t0, t_end, n_steps, a, b)

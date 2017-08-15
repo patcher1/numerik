@@ -5,9 +5,10 @@
   - [x] 1-dim (1.7.2)
   - [x] 2-dim (1.7.4)
   - [x] n-dim
-- [ ] gedämpftes Newton-Verfahren (1.8.6)
+- [x] gedämpftes Newton-Verfahren (1.8.6)
 - [ ] Bisektionsverfahren (Intervallhalbierungsverfahren) (S7A2g)
 - [x] Sekantenverfahren (1.6.2)
+[x] Fixpunktiteration
 
 # Ausgleichsrechnung
 - [x] lineare
