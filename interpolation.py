@@ -10,9 +10,9 @@ import numpy.random
 
 # Polynominterpolation
 
-def simple(f, a, b, N, M):
+def monom(f, a, b, N, M):
     """
-    Interpolation einer Funktion mit aquidistanten Stützstellen
+    Interpolation mit Monombasis einer Funktion mit aquidistanten Stützstellen
 
     @param {callable} f          - Funktion zur Approximation
     @param [{int}, {int}] [a, b] - Intervall zur Interpolation
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     x = np.linspace(l, r, 10**3)
     N = 21
 
-    p1 = simple(g, l, r, N, N+1)
+    p1 = monom(g, l, r, N, N+1)
     y1 = p1(x)
     p2 = chebychev(g, l, r, N)
     y2 = p2(x)

@@ -23,21 +23,21 @@ def buildMatrix (base_functions, evaluation_points):
 
 #Use this if the mxn matrix is big and sparse
 #Uses the fact that the Jacobian matrix / Gradient of ||Ax-b||^2 should be zero if it is a minimum
-def solve_with_normal_equation(A, b):
+def minimize_ata(A, b):
     ATA=np.dot(A.T,A)
     ATb=np.dot(A.T,b)
     x=np.linalg.solve(ATA,ATb)
     return x
 
 #Possible to use this with a non fulll rank matrix, however SVD is better (according to the script).
-def solve_with_qr(A, b):
+def minimize_qr(A, b):
     Q, R = scipy.linalg.qr(A,mode="economic") #economic mode returns a square matrix for R (last rows will all be 0)
     btilde = np.dot(Q.T, b)
     x= scipy.linalg.solve_triangular(R, btilde) #R is an upper triagonal matrix
     return x
 
 #non-readable code copied from solution of series 9
-def solve_with_svd(A, b):
+def minimize_svd(A, b):
     U, sigma, Vh = scipy.linalg.svd(A)
     r = sigma.shape[0]
     U1 = U[:,:r]
@@ -80,18 +80,18 @@ def test():
         A[:,i] = lambdas[i]* np.exp (-lambdas[i]*times)
 
     #Approximate the m's with least squares methods
-    x1=solve_with_normal_equation(A, activities)
-    x2=solve_with_qr(A,activities)
-    x3=solve_with_svd(A,activities);
+    x1=minimize_ATA(A, activities)
+    x2=minimize_qr(A,activities)
+    x3=minimize_svd(A,activities);
     print("Exact")
     print("Exact M's: ",m0)
     print("Normal M's: ",x1)
     print("QR M's: ",x2)
     print("SVD M's: ",x3)
 
-    x1=solve_with_normal_equation(A, noisy_activities)
-    x2=solve_with_qr(A,noisy_activities)
-    x3=solve_with_svd(A,noisy_activities);
+    x1=minimize_ATA(A, noisy_activities)
+    x2=minimize_qr(A,noisy_activities)
+    x3=minimize_svd(A,noisy_activities);
     print("Noisy: ")
     print("Exact M's: ",m0)
     print("Normal M's: ",x1)
