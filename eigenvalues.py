@@ -95,7 +95,7 @@ def arnoldi(A, y0, k):
         if H[l+1,l] == 0: break # Abbruch, weil Kk(A, v) = Kl(A, v)
         V[:,l+1] = v_tilde/H[l+1,l]
 
-    return V, H[:-1,:], H[-1,-1]
+    return V, H[:-1,:], H[-1,-1], H
 
 def lanczos(A, y0, k):
     """

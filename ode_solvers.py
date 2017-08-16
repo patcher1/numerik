@@ -165,36 +165,12 @@ def rk_step(rhs, y0, t0, dt, B):
             return Fk.reshape(s*dim,)
         
         # Startwert fuer fsolve: Verwende eE
-        start = eE_step(rhs, y0, t0, dt)
+        ini = np.array([rhs(t0 + c[i]*dt, y0 + dt*c[i]*rhs(t0, y0)) for i in range(s)])
         
         # Loese das Gleichungssystem, um k zu bestimmen
-        k = scipy.optimize.fsolve(F, start.reshape(s*dim,)).reshape(s, dim)
+        k = scipy.optimize.fsolve(F, ini.reshape(s*dim,)).reshape(s, dim)
 
     return y0 + dt*np.dot(b, k)
-
-###################################################
-# Methods to get y function of linear ODE Systems #
-###################################################
-
-"""
-Example: linear ODE System
-y'(t) = λ*A*y(t)
-=> y(t) = e^(λ*t*A)*y0
-
-l = -1j
-
-# By Krylov:
-V, H = krylov(A, y0, k)
-y = lambda t: V[:,:-1].dot(scipy.linalg.expm(l*t*H))[:,0]
-
-# Analytic
-y = lambda t: scipy.linalg.expm(l*t*A).dot(y0) # y(t) = exp(l*t*A)*y0
-
-# Diagonalize
-D, V = scipy.linalg.eig(A)
-y = lambda t: V.dot(np.diag(np.exp(l*t*D)).dot(scipy.linalg.solve(V, v)))
-
-"""
 
 #########
 # Tests #
@@ -202,6 +178,60 @@ y = lambda t: V.dot(np.diag(np.exp(l*t*D)).dot(scipy.linalg.solve(V, v)))
 
 if __name__ == '__main__':
 
+###################################################
+# Methods to get y function of linear ODE Systems #
+###################################################
+
+    # Example: linear ODE System
+    # y'(t) = λ*A*y(t)
+    # => y(t) = e^(λ*t*A)*y0
+
+    #l = -1j
+    l = 1.0
+    A = np.array([ [ 998, 1998 ], [ -999, -1999 ] ])
+    y0 = np.array([1.0, 0.0])
+    k = 1
+    T = np.linspace(0.0, 10, 100)
+
+    # By Krylov:
+    V, H, Hl, _ = krylov(A, y0, k)
+    print(V.shape)
+    print(H.shape)
+    print(Hl)
+    #yk = lambda t: V[:,:-1].dot(scipy.linalg.expm(l*t*H))[:,0]
+    def yk (t):
+        Htilde = np.zeros((H.shape[0] + 1,H.shape[1] + 1))
+        Htilde[0:-1,0:-1] = H
+        Htilde[-1,-1] = Hl
+        expHt = scipy.linalg.expm(Htilde*l*t)
+        x = np.linalg.norm(y0)
+        x *= V.dot(expHt)
+
+        return x[:,0]
+    #yk = lambda t: np.linalg.norm(y0)*V.dot(scipy.linalg.expm(H*l*t))[0,0]
+    yK = np.array([yk(t) for t in T])
+
+    # Analytic
+    ya = lambda t: scipy.linalg.expm(l*t*A).dot(y0) # y(t) = exp(l*t*A)*y0
+    yA = np.array([ya(t) for t in T])
+
+    # Diagonalize
+    D, V = scipy.linalg.eig(A)
+    Vinv = np.linalg.solve(V, np.eye(V.shape[0]))
+    yd = lambda t: V.dot(np.diag(np.exp(l*D*t)).dot(Vinv)).dot(y0)
+    yD = np.array([yd(t) for t in T])
+
+    plt.figure()
+    plt.plot(T, yK[:,0],'r-',label='yk')
+    plt.plot(T, yA[:,0],'g-',label='ya1')
+    plt.plot(T, yD[:,0],'b-',label='yd1')
+    plt.xlabel('Zeit t')
+    plt.ylabel('Position y(t)')
+    plt.legend(loc="best")
+    plt.grid(True)
+    plt.show()
+
+    """
     # Magnus-Verfahren n. Ordnung
     # DGL: y'(t) = A(t)y(t)
     # Die Mathieu-Gleichung:
@@ -247,7 +277,7 @@ if __name__ == '__main__':
     plt.ylabel('Position y(t)')
     plt.grid(True)
     plt.show()
-
+    """
 
     """
     # Runge Kutta Bsp
