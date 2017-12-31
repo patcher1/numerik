@@ -143,7 +143,7 @@ def rk_step(rhs, y0, t0, dt, B):
     k = np.zeros((s, dim))
     
     # A strikte untere Dreiecksmatrix --> Explizites RK-Verfahren
-    if np.array_equal(A, np.tril(A, 1)):
+    if np.array_equal(A, np.tril(A, -1)):
         for i in range(s):
             k[i,:] = rhs(t0 + dt*c[i], y0 + dt*np.dot(A[i,:],k))
 
