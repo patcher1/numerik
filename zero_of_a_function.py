@@ -26,7 +26,7 @@ def newton(xk, f, Df, damper=1., tol=10**-14, maxit=10000):
         xk -= lamk*sk
         if np.linalg.norm(sk) <= tol*np.linalg.norm(xk):
             break
-        X.append(xk)
+        X.append(np.array(xk[:]))
 
     return xk[0] if np.size(xk) == 1 else xk, i, np.array(X)
 
