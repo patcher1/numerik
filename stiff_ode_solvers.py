@@ -56,6 +56,75 @@ def exp_euler_step(f, Df, y0, t0, dt):
     x = solve(Df(y0), f(y0))
     return y0 + dot(expm(dt*Df(y0)) - eye(size(y0)), x)
 
+def row_2_step(f, Jf, y0, dt):
+    """Rosenbrock-Wanner Methode der Ordnung 2
+
+    Input:
+         f : Die rechte Seite der ODE f(x).
+
+        Jf : Jacobi Matrix J(x) der Funktion, `shape == (n, n)`.
+
+        y0 : ndarray.
+             Aktueller Wert der approximativen Loesung der ODE.
+
+        dt : Schrittweite
+
+    Output:
+        y1 : Zeitpropagierter Wert y(t+h).
+    """
+    n = y0.shape[0]
+    a = 1.0 / (2.0 + np.sqrt(2.0))
+    I = np.identity(n)
+    J = Jf(y0)
+    A = I - a*dt*J
+
+    # k1
+    b1 = f(y0)
+    k1 = solve(A, b1)
+
+    # k2
+    b2 = f(y0+0.5*dt*k1) - a*dt*np.dot(J,k1)
+    k2 = solve(A, b2)
+
+    return y0 + dt*k2
+
+def row_3_step(f, Jf, y0, dt):
+    """Rosenbrock-Wanner Methode der Ordnung 3
+
+    Input:
+         f : Die rechte Seite der ODE f(x).
+
+        Jf : Jacobi Matrix J(x) der Funktion, `shape == (n, n)`.
+
+        y0 : ndarray.
+             Aktueller Wert der approximativen Loesung der ODE.
+
+        dt : Schrittweite
+
+    Output:
+        y1 : Zeitpropagierter Wert y(t+h).
+    """
+    n = y0.shape[0]
+    a = 1.0 / (2.0 + np.sqrt(2.0))
+    d31 = - (4.0 + np.sqrt(2.0)) / (2.0 + np.sqrt(2.0))
+    d32 = (6.0 + np.sqrt(2.0)) / (2.0 + np.sqrt(2.0))
+    I = np.identity(n)
+    J = Jf(y0)
+    A = I - a*dt*J
+
+    # k1
+    b1 = f(y0)
+    k1 = solve(A, b1)
+
+    # k2
+    b2 = f(y0+0.5*dt*k1) - a*dt*np.dot(J,k1)
+    k2 = solve(A, b2)
+
+    # k3
+    b3 = f(y0+dt*k2) - d31*dt*np.dot(J,k1) - d32*dt*np.dot(J,k2)
+    k3 = solve(A, b3)
+
+    return y0 + dt/6.0*(k1 + 4*k2 + k3)
 
 if __name__ == '__main__':
 
