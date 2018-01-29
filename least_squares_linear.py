@@ -36,12 +36,11 @@ def minimize_qr(A, b):
     x= scipy.linalg.solve_triangular(R, btilde) #R is an upper triagonal matrix
     return x
 
-#non-readable code copied from solution of series 9
+
 def minimize_svd(A, b):
-    U, sigma, Vh = scipy.linalg.svd(A)
-    r = sigma.shape[0]
-    U1 = U[:,:r]
-    x = np.dot(Vh[:,:r].T, np.dot(np.diag(1/sigma), np.dot(U1.T, b)))
+    U,s,Vh = scipy.linalg.svd(A)
+    r = np.linalg.matrix_rank(np.diag(s)) #rank
+    x = np.dot(Vh[:r,:].T, np.dot(U[:,:r].T,b)/s[:r] )
     return x
 
 
